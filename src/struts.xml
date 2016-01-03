@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="gbk"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<!-- 设置Action的请求后缀为.action,防止Struts2.1将无后缀请求亦当成正常的Action请求处理 -->
+	<constant name="struts.action.extension" value="action"/>
+	<!-- 设置Web应用的默认编码集为gbk -->
+	<constant name="struts.i18n.encoding" value="gbk"/>
+	<!-- 设置Web应用的默认Locale为zh_CN -->
+	<constant name="struts.locale" value="zh_CN" />
+	<!-- 设置Struts2.1应用的国际化资源文件，多个文件中间可用逗号分隔 -->
+	<constant name="struts.custom.i18n.resources" value="messageResource"/>
+	<!-- 设置Struts2.1默认的ObjectFactory为spring -->
+	<constant name="struts.objectFactory" value="spring" />
+	<!-- 设置Struts2.1应用是否处于开发模式，通常在开发调试阶段设为true,正式上线后可设为false -->
+	<constant name="struts.devMode" value="true" />
+	<!-- 设置Struts2.1允许静态方法调用 -->
+	<constant name="struts.ognl.allowStaticMethodAccess" value="true" />
+	<!-- 设置Struts2.1的默认主题为simple -->
+	<constant name="struts.ui.theme" value="simple" />
+
+    <package name="eportal" extends="struts-default">
+		<!-- 配置自定义拦截器LoginedCheckInterceptor -->
+		<interceptors>
+			<interceptor name="loginedCheck" class="com.eportal.struts.interceptor.LoginedCheckInterceptor"/>
+		</interceptors>	    
+    
+		<!-- 定义全局result -->
+		<global-results>
+			<!-- 定义名为exception的全局result -->
+		    <result name="exception">/exception.jsp</result>
+		    <result name="tologin">/admin/tologin.htm</result>
+		    <result name="noprim">/admin/error.htm</result>	
+		</global-results>
+
+		<!-- 定义全局异常映射 -->
+		<global-exception-mappings>
+			<!-- 捕捉到Exception异常(所有异常)时跳转到exception所命名的视图上 -->
+			<exception-mapping exception="java.lang.Exception" result="exception"/>
+		</global-exception-mappings>	
+    </package>
+    <!-- 定义供异步调用的包，指定命名空间为/ajax -->
+    <package name="ajax" extends="json-default" namespace="/ajax">
+    	<!-- 配置供异步调用的incNewsClicks映射，实现新闻点击数加一 -->
+		<action name="incNewsClicks" class="newsAction" method="incNewsClicks">
+			<result type="json">
+				<!-- 指定不需要序列化输出给客户端的属性列表 -->
+				<param name="excludeProperties">
+					service,columnsService,actionMsg,newsList,columnId,doubleSelectNodes,column1,column2,pic,picContentType,picFileName,model
+				</param>
+			</result>
+		</action>    	
+    </package>
+    <!-- 定义前台管理包，指定命名空间为/webs -->    
+    <package name="webs" extends="eportal" namespace="/webs">
+		<!-- 配置注册会员管理的MemberAction映射 -->
+		<action name="regMember" class="memberAction" method="regMember">
+			<result name="input">/webs/reg.jsp</result>
+		</action>
+		<action name="loginMember" class="memberAction" method="login">
+			<result name="input">/index.jsp</result>
+		</action>
+		<action name="logoutMember" class="memberAction" method="logout">
+			<result name="input" type="redirect">/index.jsp</result>
+		</action>
+		<action name="updateMember" class="memberAction" method="updateMember">
+			<result name="input">/webs/editReg.jsp</result>
+		</action>
+		<action name="isLogined" class="memberAction" method="isLogined"/>
+		<!-- 配置购物车管理的CartAction映射 -->
+		<action name="viewCart" class="cartAction" method="viewCart">
+			<result>/webs/cart.jsp</result>
+		</action>
+		<action name="addToCart" class="cartAction" method="addToCart">
+			<result name="toViewCart" type="redirectAction">
+				<param name="actionName">viewCart</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>			
+		</action>
+		<action name="updateSelectedNumber" class="cartAction" method="updateSelectedNumber">
+			<result name="input" type="redirectAction">
+				<param name="actionName">viewCart</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>			
+		</action>		
+		<action name="delCartselectedmer" class="cartAction" method="delCartselectedmer">
+			<result name="input" type="redirectAction">
+				<param name="actionName">viewCart</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>			
+		</action>
+		<action name="clearCart" class="cartAction" method="clearCart">
+			<result name="toViewCart" type="redirectAction">
+				<param name="actionName">viewCart</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>			
+		</action>
+		<!-- 配置订单管理的OrdersAction映射 -->
+		<action name="addOrders" class="ordersAction" method="addOrders">
+			<result>/webs/addorder.jsp</result>
+		</action>
+		<action name="submitOrders" class="ordersAction" method="submitOrders">
+			<result>/webs/payinfo.jsp</result>
+			<result name="input" type="redirectAction">
+				<param name="actionName">addOrders</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>				
+		</action>
+		<action name="loadAllOrders" class="ordersAction" method="loadAllOrders">
+			<result>/webs/order.jsp</result>
+		</action>
+		<action name="delOrders" class="ordersAction" method="delOrders">
+			<result name="input" type="redirectAction">
+				<param name="actionName">loadAllOrders</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>				
+		</action>
+		<action name="updateOrdersStatus" class="ordersAction" method="updateOrdersStatus">
+			<result name="input" type="redirectAction">
+				<param name="actionName">loadAllOrders</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>				
+		</action>
+		<action name="viewOrders" class="ordersAction" method="viewOrders">
+			<result>/webs/vieworder.jsp</result>
+			<result name="input" type="redirectAction">
+				<param name="actionName">loadAllOrders</param>
+				<param name="namespace">/webs</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>				
+		</action>															    
+    </package>    
+    <!-- 定义后台管理包，指定命名空间为/admin -->    
+    <package name="admin" extends="eportal" namespace="/admin">
+		<!-- 配置文件上传的UploadAction映射 -->
+		<action name="uploadCKeditor" class="uploadAction"/>
+  
+		<!-- 配置系统用户管理的AdminAction映射 -->
+		<action name="updateAdmin" class="adminAction" method="updateAdmin">
+			<result name="input">/admin/editAdmin.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="admin_*" class="adminAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="index">/admin/index.jsp</result>
+			<result name="login">/admin/login.jsp</result>
+			<result name="toBrowseAdmin" type="redirectAction">
+				<param name="actionName">admin_browseAdmin</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置新闻栏目管理的ColumnsAction映射 -->
+		<action name="updateColumns" class="columnsAction" method="updateColumns">
+			<result name="input">/admin/editColumns.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="columns_*" class="columnsAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseColumns" type="redirectAction">
+				<param name="actionName">columns_browseColumns</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置新闻管理的NewsAction映射 -->
+		<action name="updateNews" class="newsAction" method="updateNews">
+			<result name="input">/admin/editNews.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<action name="preAddNews" class="newsAction" method="preAddNews">
+			<result>/admin/addNews.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<action name="viewNews" class="newsAction" method="viewNews">
+			<result>/webs/newsinfo.jsp</result>
+		</action>
+		<action name="publisNews" class="newsAction" method="publisNews">
+			<result name="toBrowseNews" type="redirectAction">
+				<param name="actionName">news_browseNews</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="news_*" class="newsAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseNews" type="redirectAction">
+				<param name="actionName">news_browseNews</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置新闻采集规则管理的CrawlAction映射 -->
+		<action name="rule_*" class="crawlAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="status" type="redirect">/admin/crawlNewsStatus.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseNewsrule" type="redirectAction">
+				<param name="actionName">rule_browseNewsrule</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>		
+		<action name="updateNewsrule" class="crawlAction" method="updateNewsrule">
+			<result name="input">/admin/editNewsrule.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<action name="preAddNewsrule" class="crawlAction" method="preAddNewsrule">
+			<result>/admin/addNewsrule.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>				
+		<!-- 配置会员级别管理的MemberlevelAction映射 -->
+		<action name="updateMemberlevel" class="memberLeveAction" method="updateMemberlevel">
+			<result name="input">/admin/editMemberlevel.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="level_*" class="memberLeveAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseMemberlevel" type="redirectAction">
+				<param name="actionName">level_browseMemberlevel</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置注册会员管理的MemberAction映射 -->
+		<action name="preAddMember" class="memberAction" method="preAddMember">
+			<result>/admin/addMember.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>		
+		<action name="updateMember" class="memberAction" method="updateMember">
+			<result name="input">/admin/editMember.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="member_*" class="memberAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseMember" type="redirectAction">
+				<param name="actionName">member_browseMember</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置商品分类管理的CategoryAction映射 -->
+		<action name="updateCategory" class="categoryAction" method="updateCategory">
+			<result name="input">/admin/editCategory.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>	
+		<action name="cate_*" class="categoryAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseCategory" type="redirectAction">
+				<param name="actionName">cate_browseCategory</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置商品管理的MerchandiseAction映射 -->
+		<action name="preAddMerchandise" class="merchandiseAction" method="preAddMerchandise">
+			<result>/admin/addMerchandise.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>		
+		<action name="updateMerchandise" class="merchandiseAction" method="updateMerchandise">
+			<result name="input">/admin/editMerchandise.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<action name="viewMerchandise" class="merchandiseAction" method="viewMerchandise">
+			<result>/webs/merinfo.jsp</result>
+		</action>
+		<action name="publisMerchandise" class="merchandiseAction" method="publisMerchandise">
+			<result name="toBrowseMerchandise" type="redirectAction">
+				<param name="actionName">mer_browseMerchandise</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>						
+		<action name="mer_*" class="merchandiseAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<result name="input">/admin/{1}.jsp</result>			
+			<result name="toBrowseMerchandise" type="redirectAction">
+				<param name="actionName">mer_browseMerchandise</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>
+		</action>
+		<!-- 配置订单管理的OrdersAction映射 -->
+		<action name="orders_*" class="ordersAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>			
+		</action>
+		<action name="updateOrdersStatus" class="ordersAction" method="updateOrdersStatus">
+			<result name="input" type="redirectAction">
+				<param name="actionName">orders_browseOrders</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>							
+		</action>
+		<action name="orders_delOrders" class="ordersAction" method="delOrders">
+			<result name="input" type="redirectAction">
+				<param name="actionName">orders_browseOrders</param>
+				<param name="namespace">/admin</param>
+				<param name="actionMsg">${actionMsg}</param>
+			</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>							
+		</action>
+		<!-- 配置流量统计的TrafficAction映射 -->
+		<action name="traffic_*" class="trafficAction" method="{1}">
+			<result>/admin/{1}.jsp</result>
+			<interceptor-ref name="loginedCheck"/>
+			<interceptor-ref name="defaultStack"/>			
+		</action>																												 		 		    
+    </package>
+    <!-- 定义报表包，指定命名空间为/report -->    
+    
+   
+</struts>

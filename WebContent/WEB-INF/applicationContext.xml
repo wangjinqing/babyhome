@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/aop 
+            http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+            http://www.springframework.org/schema/tx 
+            http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+            http://www.springframework.org/schema/context 
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <!-- 开启注解处理器 -->
+    <context:annotation-config/>
+	
+	<!-- 定义使用C3P0连接池的数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 指定连接数据库的JDBC驱动 -->
+		<property name="driverClass">
+		 	<value>com.mysql.jdbc.Driver</value>
+		 </property>
+		<!-- 连接数据库所用的URL -->
+		<property name="jdbcUrl">
+			<value>jdbc:mysql://localhost:3306/slsr?useUnicode=true&amp;characterEncoding=utf-8</value>
+		</property>
+		<!-- 连接数据库的用户名 -->
+		<property name="user">
+			<value>root</value>
+		</property>
+		<!-- 连接数据库的密码 -->
+		<property name="password">
+			<value>545655</value>
+		</property>
+		<!-- 设置数据库连接池的最大连接数 -->
+		<property name="maxPoolSize">
+			<value>20</value>
+		</property>
+		<!-- 设置数据库连接池的最小连接数 -->
+		<property name="minPoolSize">
+			<value>2</value>
+		</property>
+		<!-- 设置数据库连接池的初始化连接数 -->
+		<property name="initialPoolSize">
+			<value>2</value>
+		</property>
+		<!-- 设置数据库连接池的连接的最大空闲时间,单位为秒 -->
+		<property name="maxIdleTime">
+			<value>20</value>
+		</property>
+	</bean>
+
+    <!-- 定义Hibernate的SessionFactory -->
+ <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+  <property name="dataSource" ref="dataSource" /> 
+
+        <!-- 注册Hibernate的ORM映射文件 -->
+        <property name="mappingResources">
+            <list>
+	            <value>com/eportal/ORM/News.hbm.xml</value>
+	            <value>com/eportal/ORM/Category.hbm.xml</value>
+	            <value>com/eportal/ORM/Memberlevel.hbm.xml</value>
+	            <value>com/eportal/ORM/Cart.hbm.xml</value>
+	            <value>com/eportal/ORM/Traffic.hbm.xml</value>
+	            <value>com/eportal/ORM/Newsrule.hbm.xml</value>
+	            <value>com/eportal/ORM/Merchandise.hbm.xml</value>
+	            <value>com/eportal/ORM/Admin.hbm.xml</value>
+	            <value>com/eportal/ORM/Orders.hbm.xml</value>
+	            <value>com/eportal/ORM/Cartselectedmer.hbm.xml</value>
+	            <value>com/eportal/ORM/Newscolumns.hbm.xml</value>
+	            <value>com/eportal/ORM/Member.hbm.xml</value>
+            </list>
+        </property>
+        <!-- 设置Hibernate的相关属性 -->
+        <property name="hibernateProperties">
+            <props>
+                <!-- 设置Hibernate的数据库方言 -->
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <!-- 设置Hibernate是否在控制台输出SQL语句，开发调试阶段通常设为true -->
+                <prop key="show_sql">true</prop>
+				<!-- 设置Hibernate一个提交批次中的最大SQL语句数 -->
+                <prop key="hibernate.jdbc.batch_size">50</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--定义Hibernate的事务管理器HibernateTransactionManager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <!-- 依赖注入上面定义的sessionFactory -->
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- 定义一个事务通知txAdvice,配置事务的传播特性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 所有以browse、list、load、get及 is开头的业务逻辑方法均不需要事务控制且只读 -->
+			<tx:method name="browse*" propagation="NOT_SUPPORTED" read-only="true"/>
+			<tx:method name="list*" propagation="NOT_SUPPORTED" read-only="true"/>
+			<tx:method name="load*" propagation="NOT_SUPPORTED" read-only="true"/>
+			<tx:method name="get*" propagation="NOT_SUPPORTED" read-only="true"/>
+			<tx:method name="is*" propagation="NOT_SUPPORTED" read-only="true"/>
+			<!-- 设置所有方法均进行事务控制，如果当前没有事务，则新建一个事务 -->
+			<tx:method name="*" propagation="REQUIRED"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 基于AOP技术的事务管理实现 -->
+	<aop:config>
+		<!-- 定义一个事务切入点,拦截com.eportal.service.impl包中所有类的所有方法 -->
+		<aop:pointcut id="transactionPointcut" expression="execution(* com.eportal.service.impl.*.*(..))" />
+		<!-- 引用txAdvice事务通知 -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="transactionPointcut"/>
+	</aop:config>	
+
+	<!-- 装配HibernateTemplate实例 -->
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
+	
+    <!-- 装配通用数据库访问类BaseDAOImpl -->    
+	<bean id="dao" class="com.eportal.DAO.BaseDAOImpl">
+		<property name="hibernateTemplate" ref="hibernateTemplate"/>
+	</bean>
+	
+    <!-- 部署系统用户管理业务逻辑组件AdminServiceImpl --> 
+	<bean id="adminService" class="com.eportal.service.impl.AdminServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>
+	
+    <!-- 部署新闻栏目管理业务逻辑组件ColumnsServiceImpl --> 
+	<bean id="columnsService" class="com.eportal.service.impl.ColumnsServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>
+	
+    <!-- 部署新闻管理业务逻辑组件NewsServiceImpl --> 
+	<bean id="newsService" class="com.eportal.service.impl.NewsServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>
+	
+	<!-- 部署新闻采集规则业务逻辑组件CrawlServiceImpl --> 
+	<bean id="crawlService" class="com.eportal.service.impl.CrawlServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>		
+	
+    <!-- 部署会员级别管理业务逻辑组件MemberLevelServiceImpl --> 
+	<bean id="memberLevelService" class="com.eportal.service.impl.MemberLevelServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>	
+	
+	<!-- 部署会员管理业务逻辑组件MemberServiceImpl --> 
+	<bean id="memberService" class="com.eportal.service.impl.MemberServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>
+	
+	<!-- 部署商品分类管理业务逻辑组件CategoryServiceImpl --> 
+	<bean id="categoryService" class="com.eportal.service.impl.CategoryServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>	
+	
+	<!-- 部署商品管理业务逻辑组件MerchandiseServiceImpl -->  
+	<bean id="merService" class="com.eportal.service.impl.MerchandiseServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>
+	
+	<!-- 部署购物车管理业务逻辑组件CartServiceImpl --> 
+	<bean id="cartService" class="com.eportal.service.impl.CartServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>					
+	
+	<!-- 部署订单管理业务逻辑组件OrderServiceImpl --> 
+	<bean id="ordersService" class="com.eportal.service.impl.OrderServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>	
+
+	<!-- 部署流量统计业务逻辑组件TrafficServiceImpl --> 
+	<bean id="trafficService" class="com.eportal.service.impl.TrafficServiceImpl">
+		<property name="dao" ref="dao"/>
+	</bean>	
+		
+    <!-- 部署Struts2.1负责系统用户管理的控制器AdminAction --> 
+	<bean id="adminAction" class="com.eportal.struts.action.AdminAction" scope="prototype">
+		<property name="service" ref="adminService"/>
+	</bean>   	
+	
+    <!-- 部署Struts2.1负责新闻栏目管理的控制器ColumnsAction --> 
+	<bean id="columnsAction" class="com.eportal.struts.action.ColumnsAction" scope="prototype">
+		<property name="service" ref="columnsService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责新闻管理的控制器NewsAction --> 
+	<bean id="newsAction" class="com.eportal.struts.action.NewsAction" scope="prototype">
+		<property name="service" ref="newsService"/>
+		<property name="columnsService" ref="columnsService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责新闻采集规则管理的控制器CrawlAction --> 
+	<bean id="crawlAction" class="com.eportal.struts.action.CrawlAction" scope="prototype">
+		<property name="service" ref="crawlService"/>
+		<property name="columnsService" ref="columnsService"/>
+	</bean>	
+	
+	<!-- 部署Struts2.1负责会员级别管理的控制器MemberlevelAction --> 
+	<bean id="memberLeveAction" class="com.eportal.struts.action.MemberlevelAction" scope="prototype">
+		<property name="service" ref="memberLevelService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责会员管理的控制器MemberAction --> 
+	<bean id="memberAction" class="com.eportal.struts.action.MemberAction" scope="prototype">
+		<property name="service" ref="memberService"/>
+		<property name="memberLevelService" ref="memberLevelService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责商品分类管理的控制器CategoryAction --> 
+	<bean id="categoryAction" class="com.eportal.struts.action.CategoryAction" scope="prototype">
+		<property name="service" ref="categoryService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责商品管理的控制器MerchandiseAction --> 
+	<bean id="merchandiseAction" class="com.eportal.struts.action.MerchandiseAction" scope="prototype">
+		<property name="service" ref="merService"/>
+		<property name="cateService" ref="categoryService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责购物车管理的控制器CartAction --> 
+	<bean id="cartAction" class="com.eportal.struts.action.CartAction" scope="prototype">
+		<property name="service" ref="cartService"/>
+		<property name="merService" ref="merService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责订单管理的控制器OrdersAction --> 
+	<bean id="ordersAction" class="com.eportal.struts.action.OrdersAction" scope="prototype">
+		<property name="service" ref="ordersService"/>
+		<property name="cartService" ref="cartService"/>
+		<property name="memberService" ref="memberService"/>
+	</bean>
+	
+    <!-- 部署Struts2.1负责流量统计的控制器TrafficAction --> 
+	<bean id="trafficAction" class="com.eportal.struts.action.TrafficAction" scope="prototype">
+		<property name="service" ref="trafficService"/>
+	</bean>
+	
+	<!-- 部署Struts2.1负责文件上传的控制器UploadAction --> 
+	<bean id="uploadAction" class="com.eportal.struts.action.UploadAction" scope="prototype"/>
+
+</beans>

@@ -1,0 +1,410 @@
+
+
+ 
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xml:lang="zh-CN" lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gbk" />
+<title>外媒称中国太空漫步后将眼光投向月球(图)-ePortal电子商务门户</title>
+<base target="_blank" />
+<meta name="Keywords" content='中国,太空,月球' />
+<meta name="Description" content='环球时报特约记者王斯报道 神舟七号29日继续成为西方媒体的关注焦点，不过不少媒体都不约而同地将注意力转移到了中国首次太空行走后的航天计划上，称“中国将眼光投向月球”。' />
+<meta name="robots" content="index, follow" />
+<meta name="googlebot" content="index, follow" />
+<link href="http://localhost:8080/ePortal/css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://localhost:8080/ePortal/js/json.js"></script>
+<script type="text/javascript" src="http://localhost:8080/ePortal/js/prototype-1.4.0.js"></script>
+</head>
+<body>
+<!--DIV页面主容器-->
+<div class="container">
+
+<!--Logo区-->
+<div class="logo_left">
+	<img src="http://localhost:8080/ePortal/images/logo.gif" />
+</div>
+<div class="logo_right">
+	<img src="http://localhost:8080/ePortal/images/ad1.gif" />
+</div>
+<!-- 栏间留空 -->	
+<div class="split"></div>	
+<!--导航菜单区-->
+<div class="menu">
+	<ul>	
+		<li><a target="_self" href="http://localhost:8080/ePortal/index.jsp">首&nbsp;&nbsp;页</a></li>
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/newmer.jsp">新品上架</a></li>
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/prommer.jsp">促销商品</a></li>
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/video.jsp">视频购物</a></li>
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/viewCart.action">购物车管理</a></li>	
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/loadAllOrders.action">订单管理</a></li>
+		<li><a target="_self" href="http://localhost:8080/ePortal/webs/news.jsp">商城快讯</a></li>
+		<li><span onclick="editMember()">修改注册资料</span></li>			
+	</ul>	
+</div>
+
+<!--搜索与注册登录区-->	
+<div class="search">
+	<div class="search_left"></div>
+	<div class="search_main">
+<!--注册登录区-->			
+		<div class="login">
+			<div class="login_left"></div>
+			<div class="login_main">			 	
+					<form id="loginform" name="loginform" action="/ePortal/webs/loginMember.action;jsessionid=84878440053CFDB09A6BA05E1B53F5E1" target="_self" method="post" style="display:none">
+						用户名：<input type="text" name="loginName" size="16" value="" id="loginName"/>
+						密码：<input type="password" name="loginPwd" size="16" id="loginPwd"/>
+						<input type="image" src="http://localhost:8080/ePortal/images/login.jpg" onclick="checkForm(); return false;"/>
+						&nbsp;&nbsp;<a href="http://localhost:8080/ePortal/webs/reg.jsp" target="_self">注册新会员</a>
+					</form>
+
+
+
+					
+					<span class="actionMessage" id="logined_span"></span>
+					<script language='javascript'>
+						//定义一个变量用于存放XMLHttpRequest对象
+						var xmlHttp;
+						//定义一个变量用于存放登录状态,默认为未登录
+						var loginStatus=false; 
+						
+						//该函数用于创建一个XMLHttpRequest对象
+						function createXMLHttpRequest() {
+							if (window.ActiveXObject) {
+								xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+							} 
+							else if (window.XMLHttpRequest) {
+								xmlHttp = new XMLHttpRequest();
+							}
+						}
+						
+						//这是一个启动AJAX异步通信的方法
+						function checkLogined(){
+							var now = new Date();
+							//创建一个XMLHttpRequest对象
+							createXMLHttpRequest();
+							//将状态触发器绑定到一个函数
+							xmlHttp.onreadystatechange = processResponse;
+							//通过GET方法向指定的URL建立服务器的调用,加个临时参数，以便标识一个全新的请求
+							xmlHttp.open("GET", "http://localhost:8080/ePortal/webs/isLogined.action?tmp="+now.getTime());
+							//发送请求
+							xmlHttp.send(null);
+						}
+						
+						//这是一用来处理状态改变的函数
+						function processResponse(){
+							//定义一个变量用于存放从服务器返回的响应结果
+							var responseContext;
+							if(xmlHttp.readyState == 4) { //如果响应完成
+								if(xmlHttp.status == 200) {//如果返回成功
+									//取出服务器的响应内容
+									responseContext = xmlHttp.responseText;
+									if (responseContext.indexOf("Not Logined!")!=-1){//未登录
+										document.getElementById("loginform").style.display="inline";
+									}else{//已登录
+										loginStatus=true; 
+										document.getElementById("logined_span").innerHTML=responseContext;
+									}
+								}
+							}
+						}
+						
+						//通过异步通信检查当前用户的登录状态
+						checkLogined();
+													
+						//表单验证
+						function checkForm(){
+							if (document.getElementById('loginName').value==''){
+								alert('对不起,登录用户名不能为空!');
+							}else if (document.getElementById('loginPwd').value==''){
+								alert('对不起,登录密码不能为空!');
+							}else{
+								//提交表单
+								loginform.submit();
+							}
+						}
+						
+						//修改注册资料
+						function editMember(){
+							if (!loginStatus)
+								alert('对不起,您尚未登录,请登录后再修改注册资料,谢谢合作!');
+							else
+								window.location='http://localhost:8080/ePortal/webs/editReg.jsp?tmp='+(new Date()).getTime();
+						}
+						
+						//响应"搜索"按钮
+						function search(){
+							var p1 = document.getElementById("searchtype").value;
+							var p2 = document.getElementById("keyword").value;
+							if (p2==''){
+								alert('对不起,请先输入关键字然后再搜索,谢谢合作!');
+							}else{
+								if (p1=='newmer' || p1=='prommer'){//搜索所有商品
+									window.location='http://localhost:8080/ePortal/webs/searchMer.jsp?searchtype='+p1+'&keyword='+escape(escape(p2));
+								}else if (p1=='news'){//搜索商城资讯
+									window.location='http://localhost:8080/ePortal/webs/searchNews.jsp?keyword='+escape(escape(p2));
+								}			
+							}
+						}						
+					</script>
+			</div>
+			<div class="login_right"></div>				
+		</div>
+<!--搜索区-->
+		<div class="sou">
+			<div class="sou_left"></div>
+			<div class="sou_main">
+				类型：<select id="searchtype" name="searchtype">
+				
+				
+					<option value="newmer" selected="true">所有商品</option>
+				
+				
+				
+					<option value="prommer">促销商品</option>
+								
+				
+				
+					<option value="news">商城资讯</option>
+						
+				</select>
+				&nbsp;关键字：<input type="text" id="keyword" name="keyword" size=28 value=""/>
+			</div>
+			<div class="sou_right">
+				<input type="image" src="http://localhost:8080/ePortal/images/search_right.jpg" name="submit" onclick="search()"/>
+			</div>					
+		</div>						
+	</div>
+	<div class="search_right"></div>
+</div>	
+<!-- 栏间留空 -->	
+	<div class="split"></div>
+<!--位置导航区-->	
+	<div class="nav">
+		<div class="nav_left"></div>
+		<div class="nav_main">
+			您现在的位置：<a href="http://localhost:8080/ePortal/webs/index.jsp">首页</a> >> <a href="http://localhost:8080/ePortal/webs/news.jsp">商城快讯</a> >> 新闻内容
+		</div>
+		<div class="nav_now">
+			
+<script language="javascript"> 
+	function PageDate(){   
+		currentDate = new Date();  
+		with(currentDate){   
+			day=getDay();
+			month=getMonth()+1;
+			this.document.write(getFullYear()+'年'+month+'月'+getDate()+'日')   
+		}   
+		if(day==1){document.write(' 星期一');}
+		if(day==2){document.write(' 星期二');}
+		if(day==3){document.write(' 星期三');}
+		if(day==4){document.write(' 星期四');}
+		if(day==5){document.write(' 星期五');}
+		if(day==6){document.write(' 星期六');}
+		if(day==0){document.write(' 星期日');} 
+	}
+	PageDate();
+</script>		
+		</div>
+		<div class="nav_right"></div>
+	</div>
+<!-- 栏间留空 -->	
+	<div class="split"></div>
+<!-- 页面主体左侧 -->	
+	<div class="main_left">
+<!-- 商品分类区 -->	
+		<div class="cate">
+			<div class="cate_head_left"></div>
+			<div class="cate_head_text"><h2>商品分类</h2></div>
+			<div class="cate_head_main"></div>
+			<div class="cate_head_right"></div>
+			<div class="cate_body">
+				<!-- 使用自定义商品类别列表标签 -->
+				<div class='cate_name'><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=1'>礼品/玩具/模型/精品</a></div>
+<div class='cate_list'>
+<ul>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=5'>瑞士军刀</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=6'>汽车模型</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=7'>玩具</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=8'>手机饰品</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=9'>商务礼品</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=10'>其它</a></li>
+</ul>
+</div>
+<div class='cate_name'><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=2'>化妆品/美容/彩妆香水</a></div>
+<div class='cate_list'>
+<ul>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=11'>香水</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=12'>彩妆</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=13'>护肤产品</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=14'>洗护发</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=15'>沐浴用品</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=16'>其它</a></li>
+</ul>
+</div>
+<div class='cate_name'><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=3'>服装/服饰/内衣/箱包</a></div>
+<div class='cate_list'>
+<ul>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=17'>内衣</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=18'>女装</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=19'>男装</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=20'>鞋帽</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=21'>运动服装</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=22'>其它</a></li>
+</ul>
+</div>
+<div class='cate_name'><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=4'>数码/IT产品/电脑</a></div>
+<div class='cate_list'>
+<ul>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=23'>数码相机</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=24'>数码摄像机</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=25'>电脑整机</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=26'>电脑外设</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=27'>电脑部件</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=28'>移动存储</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=29'>手持设备</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=30'>时尚数码</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=31'>游戏机配件</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=32'>网络服务</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=33'>MP3/MP4</a></li>
+<li><a target='_self' href='/ePortal/webs/newmer.jsp?cateid=34'>其它</a></li>
+</ul>
+</div>
+
+   				
+			</div>
+		</div>
+<!-- 栏间留空 -->	
+		<div class="split"></div>		
+<!-- 促销打折区 -->	
+		<div class="prom">
+			<div class="prom_head_left"></div>
+			<div class="prom_head_text"><h2>促销打折</h2></div>
+			<div class="prom_head_main"></div>
+			<div class="prom_head_right"></div>
+			<div class="prom_body">
+				<!-- 使用自定义商品列表标签 -->
+				<ul>
+<li>
+<div class='prom_body_photo'><a href='http://localhost:8080/ePortal/html/mer/1268922411921.html' title='商品名称:神奇光谱止痒仪
+商品型号:赠品'><img align='absmiddle' src='http://localhost:8080/ePortal/upload/1268922411937.jpg' height='94'/></a></div>
+原价：￥49.00<br/>
+<span class='redtext'>特价：￥1.00</span>
+</li>
+<li>
+<div class='prom_body_photo'><a href='http://localhost:8080/ePortal/html/mer/1268922291437.html' title='商品名称:IRON FREE80支条纹衬衫
+商品型号:蓝绿细条 41码'><img align='absmiddle' src='http://localhost:8080/ePortal/upload/1268922291437.jpg' width='94'/></a></div>
+原价：￥288.00<br/>
+<span class='redtext'>特价：￥99.00</span>
+</li>
+<li>
+<div class='prom_body_photo'><a href='http://localhost:8080/ePortal/html/mer/1268922195218.html' title='商品名称:单肩包
+商品型号:『米奇』菱格三步曲系90807109'><img align='absmiddle' src='http://localhost:8080/ePortal/upload/1268922195218.jpg' height='94'/></a></div>
+原价：￥272.00<br/>
+<span class='redtext'>特价：￥116.00</span>
+</li>
+<li>
+<div class='prom_body_photo'><a href='http://localhost:8080/ePortal/html/mer/1268922588046.html' title='商品名称:itoos MP4
+商品型号:T6'><img align='absmiddle' src='http://localhost:8080/ePortal/upload/1268922588046.jpg' width='94'/></a></div>
+原价：￥299.00<br/>
+<span class='redtext'>特价：￥219.00</span>
+</li>
+</ul>
+
+			
+			</div>
+		</div>			
+	</div>
+<!-- 页面主体右侧 -->	
+	<div class="main_right">
+		<div class="newsinfo">
+			<div class="newsinfo_title">
+				<h1>外媒称中国太空漫步后将眼光投向月球(图)</h1>
+				作者：不详&nbsp;&nbsp;
+				来源：原创&nbsp;&nbsp;
+				日期：2010-03-18&nbsp;&nbsp;
+				点击数：<span id="clickcount"></span><br/>
+			</div>
+			<div id="newsinfo_body">	
+				
+					<center><img src='http://localhost:8080/ePortal//upload/1268923337812.jpg'/></center><br/>		
+				
+				
+				
+					
+					
+						<span id='page1'>
+							<p>
+	环球时报特约记者王斯报道 神舟七号29日继续成为西方媒体的关注焦点，不过不少媒体都不约而同地将注意力转移到了中国首次太空行走后的航天计划上，称“中国将眼光投向月球”。<br />
+	法新社在题为《中国欢呼太空漫步英雄并将眼光投向月球》的报道中称，第一位漫步太空的中国人28日受到“国家英雄”的赞誉，因为中国这个新兴太空大国明确表示它将奔向月球。不过报道也提到，中国的官方文件目前还没有将有人登月定为正式目标，在开始全面“登月”之前，中国更有可能集中精力建立太空实验室，接下来的神舟系列飞船发射就是为了实现那个目标。中国长期的目标是建立能有与美、欧、俄、日等共同建设的国际空间站相媲美的属于自己的空间站。<br />
+	?</p>
+						</span>							
+					
+					
+				
+			</div>
+			
+			<div class="about_news">
+				<div class="about_news_tile"><h2>相关新闻</h2></div>
+				<ul>
+<li>&middot;<a href='http://localhost:8080/ePortal/html/news/1268923841250.html' title='电信今起正式接管联通C网 用户资费不受影响'>电信今起正式接管联通C网 用户资费</a></li>
+</ul>
+
+
+			</div>
+		</div>
+	</div>		
+<!-- 栏间留空 -->	
+	<div class="split"></div>	
+
+<!-- 页脚区 -->	
+<div class="foot">
+	<a href="#">关于商城</a>&nbsp;|&nbsp;
+	<a href="#">订购方式</a>&nbsp;|&nbsp;
+	<a href="#">配送方式</a>&nbsp;|&nbsp;
+	<a href="#">付款方式</a>&nbsp;|&nbsp;
+	<a href="#">客户服务</a>&nbsp;|&nbsp;
+	<a href="#">新手上路</a>&nbsp;|&nbsp;
+	<a href="#">帮助中心</a><br/>
+	  Powered by <a href="http://www.javares.cn">JavaRes</a>(Build: 30 January 2008) 
+</div>
+<!-- 保存原始访问记录 -->
+<script language="JavaScript">
+document.write("<img src='http://localhost:8080/ePortal/webs/traffic.jsp?fromUrl="+escape(top.document.referrer)+"&toUrl="+escape(top.document.URL)+"' style='display:none'/>");
+</script>	
+</div>
+<!-- 使用JS组件Prototype配合JSON插件实现异步点击数加一 -->
+<script language="JavaScript">
+	//定义异步调用action的函数
+	function incClicks(){
+		//访问点击数加一的incNewsClicks.action
+		var url = 'http://localhost:8080/ePortal/ajax/incNewsClicks.action';
+		//构造请求参数，此处加入tmp参数是为了让服务器知道这是一个新的请求
+		var params = 'id=6&tmp='+(new Date()).getTime();
+		//创建Ajax.Request对象，用于发送异步请求
+		var myAjax = new Ajax.Request(
+		url,
+		{
+			//请求方式：get
+			method:'get',
+			//请求参数
+			parameters:params,
+			//指定回调函数
+			onComplete: processResponse,
+			//是否异步发送请求
+			asynchronous:true
+		});
+	}
+	//定义异步响应结果的处理函数
+    function processResponse(request){    	
+    	var obj = JSON.parse(request.responseText);
+    	//将加一后的点击数放入clickcount中显示出来
+		$("clickcount").innerHTML = obj.jsonClicks;
+	}
+	//调用incClicks()函数实现点击数加一
+	incClicks();	
+</script>
+</body>	
+</html>
